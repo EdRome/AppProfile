@@ -1,9 +1,7 @@
 package com.profile.profileapp;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
 import android.view.View;
 
@@ -20,9 +18,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.DatePicker;
+import android.widget.TextView;
+
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+//import java.util.HashMap;
+//import java.util.Map;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private TextView birthday;
+    private int mYear;
+    private int mMonth;
+    private int mDay;
+
+//    private Map<Integer, String> monthTranslation = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +57,25 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+
+        birthday = findViewById(R.id.profile_birthday_textview);
+
+
+/*      To perform month translation, use this section
+        monthTranslation.put(0, "Enero");
+        monthTranslation.put(1, "Febrero");
+        monthTranslation.put(2, "Marzo");
+        monthTranslation.put(3, "Abril");
+        monthTranslation.put(4, "Mayo");
+        monthTranslation.put(5, "Junio");
+        monthTranslation.put(6, "Julio");
+        monthTranslation.put(7, "Agosto");
+        monthTranslation.put(8, "Septiembre");
+        monthTranslation.put(9, "Octubre");
+        monthTranslation.put(10, "Noviembre");
+        monthTranslation.put(11, "Diciembre");
+*/
+
     }
 
     @Override
@@ -102,5 +133,36 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void pickDateOnClick(View view) {
+        final Calendar c = Calendar.getInstance();
+        mYear = c.get(Calendar.YEAR);
+        mMonth = c.get(Calendar.MONTH);
+        mDay = c.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                String sDay = String.valueOf(day);
+                String sMonth = getMonth(month);
+                String sYear = String.valueOf(year);
+
+                sDay = addLeftZero(sDay);
+
+                birthday.setText(sMonth + " " + sDay + ", " + sYear);
+            }
+        }, mYear, mMonth, mDay);
+        datePickerDialog.show();
+    }
+
+    private String getMonth(int month){
+        return new DateFormatSymbols().getMonths()[month];
+//        return monthTranslation.get(month); Translation
+    }
+
+    private String addLeftZero(String s) {
+        String newString = (s.length() < 2) ? "0"+s : s;
+        return newString;
     }
 }
