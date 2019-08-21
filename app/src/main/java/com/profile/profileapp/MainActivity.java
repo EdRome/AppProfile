@@ -1,8 +1,13 @@
 package com.profile.profileapp;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 
+import android.provider.MediaStore;
 import android.view.View;
 
 import androidx.core.view.GravityCompat;
@@ -10,7 +15,18 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 
 import android.view.MenuItem;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.mikhaellopez.circularimageview.CircularImageView;
+import com.profile.profileapp.utils.photo;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import androidx.drawerlayout.widget.DrawerLayout;
 
@@ -20,9 +36,14 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.Menu;
 import android.widget.DatePicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
+import java.util.List;
 //import java.util.HashMap;
 //import java.util.Map;
 
@@ -33,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     private int mYear;
     private int mMonth;
     private int mDay;
+    private CircularImageView imageview;
 
 //    private Map<Integer, String> monthTranslation = new HashMap<>();
 
@@ -42,14 +64,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -60,7 +74,7 @@ public class MainActivity extends AppCompatActivity
 
         birthday = findViewById(R.id.profile_birthday_textview);
 
-
+        imageview = findViewById(R.id.profile_imageView);
 /*      To perform month translation, use this section
         monthTranslation.put(0, "Enero");
         monthTranslation.put(1, "Febrero");
@@ -75,6 +89,8 @@ public class MainActivity extends AppCompatActivity
         monthTranslation.put(10, "Noviembre");
         monthTranslation.put(11, "Diciembre");
 */
+
+        requestMultiplePermissions();
 
     }
 
@@ -161,8 +177,72 @@ public class MainActivity extends AppCompatActivity
 //        return monthTranslation.get(month); Translation
     }
 
-    private String addLeftZero(String s) {
+    private String addLeftZero(@NotNull String s) {
         String newString = (s.length() < 2) ? "0"+s : s;
         return newString;
     }
+
+    public void showPictureDialog(View view) {
+        photo.choosePhoto(this);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == this.RESULT_CANCELED) {
+            return;
+        } else if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+                try {
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    Glide.with(this).load(bitmap).into(imageview);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
+        }
+    }
+
+    private void  requestMultiplePermissions(){
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        // check if all permissions are granted
+                        if (report.areAllPermissionsGranted()) {
+                            Toast.makeText(getApplicationContext(), "All permissions are granted by user!", Toast.LENGTH_SHORT).show();
+                        }
+
+//                         check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+//                            openSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getApplicationContext(), "Some Error! ", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+
 }
