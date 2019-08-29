@@ -72,7 +72,7 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
-        birthday = findViewById(R.id.profile_birthday_textview);
+        birthday = findViewById(R.id.profile_birthday_dateselect);
 
         imageview = findViewById(R.id.profile_imageView);
 /*      To perform month translation, use this section
