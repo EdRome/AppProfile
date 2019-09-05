@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -25,6 +26,8 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.PermissionRequestErrorListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.profile.profileapp.database.entity.profileModel;
+import com.profile.profileapp.database.pojo.profilePOJO;
 import com.profile.profileapp.utils.photo;
 import com.theartofdev.edmodo.cropper.CropImage;
 
@@ -34,15 +37,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
+import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DateFormatSymbols;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 //import java.util.HashMap;
 //import java.util.Map;
@@ -54,7 +65,19 @@ public class MainActivity extends AppCompatActivity
     private int mYear;
     private int mMonth;
     private int mDay;
+
     private CircularImageView imageview;
+    private Button save;
+    private EditText username;
+    private RadioGroup gender_group;
+    private RadioButton male;
+    private RadioButton female;
+
+    private Bitmap bitmap;
+    private Date birthdate;
+
+    private profilePOJO profilePojo;
+    private profileModel user;
 
 //    private Map<Integer, String> monthTranslation = new HashMap<>();
 
@@ -73,8 +96,16 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         birthday = findViewById(R.id.profile_birthday_dateselect);
-
+        save = findViewById(R.id.profile_save_button);
         imageview = findViewById(R.id.profile_imageView);
+        username = findViewById(R.id.profile_username_edittext);
+        male = findViewById(R.id.profile_male_radiobutton);
+        female = findViewById(R.id.profile_female_raidobutton);
+
+        profilePojo = new profilePOJO(getApplication());
+
+        user = profilePojo.getProfile(1);
+
 /*      To perform month translation, use this section
         monthTranslation.put(0, "Enero");
         monthTranslation.put(1, "Febrero");
@@ -90,8 +121,70 @@ public class MainActivity extends AppCompatActivity
         monthTranslation.put(11, "Diciembre");
 */
 
+        if (user != null) {
+            username.setText(user.getUsername());
+            byte[] bitmapdata = user.getPhoto();
+            Glide.with(this).load(byteArray2Bitmap(bitmapdata)).into(imageview);
+            switch (user.getGender()) {
+                case "male":
+                    male.setChecked(true);
+                    female.setChecked(false);
+                    break;
+                case "female":
+                    female.setChecked(true);
+                    male.setChecked(false);
+                    break;
+            }
+            birthday.setText(parseDate(user.getBirthday()));
+        }
+
         requestMultiplePermissions();
 
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                byte[] img;
+                String gender;
+
+                if (bitmap == null) {
+                    img = user.getPhoto();
+                } else {
+                    img = convertBitmap2byte(bitmap);
+                }
+
+                if (female.isChecked()) {
+                    gender = "female";
+                } else {
+                    gender = "male";
+                }
+
+                if (user == null) {
+                    user = new profileModel(
+                            username.getText().toString(),
+                            gender,
+                            birthdate,
+                            img);
+
+                    profilePojo.insert(user);
+                } else {
+                    user.setGender(gender);
+                    user.setPhoto(img);
+                    user.setUsername(username.getText().toString());
+                    if (birthdate != null) {
+                        user.setBirthday(birthdate);
+                    }
+                    profilePojo.update(user);
+                }
+
+            }
+        });
+
+    }
+
+    private byte[] convertBitmap2byte(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        return stream.toByteArray();
     }
 
     @Override
@@ -166,6 +259,14 @@ public class MainActivity extends AppCompatActivity
 
                 sDay = addLeftZero(sDay);
 
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                String date = sDay + "/" + (month+1) + "/" + sYear;
+                try {
+                    birthdate = sdf.parse(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
                 birthday.setText(sMonth + " " + sDay + ", " + sYear);
             }
         }, mYear, mMonth, mDay);
@@ -197,7 +298,7 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 Uri resultUri = result.getUri();
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
                     Glide.with(this).load(bitmap).into(imageview);
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -244,5 +345,24 @@ public class MainActivity extends AppCompatActivity
                 .check();
     }
 
+    private Bitmap byteArray2Bitmap(byte[] bitmapdata) {
+        return BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
+    }
+
+    private String parseDate(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+        int month = cal.get(Calendar.MONTH);
+        int year = cal.get(Calendar.YEAR);
+
+        String sDay = String.valueOf(day);
+        String sMonth = getMonth(month);
+        String sYear = String.valueOf(year);
+
+        sDay = addLeftZero(sDay);
+
+        return (sMonth + " " + sDay + ", " + sYear);
+    }
 
 }

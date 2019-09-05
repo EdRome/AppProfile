@@ -21,6 +21,10 @@ public class profilePOJO {
         return mProfileDao.getProfile(id);
     }
 
+    public void update(profileModel profile) {
+        mProfileDao.update(profile);
+    }
+
     public void insert(profileModel profile){
         new insertAsyncTask(mProfileDao).execute(profile);
     }
