@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#66D8D4"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".MainActivity"
     tools:showIn="@layout/app_bar_main">
@@ -12,10 +13,13 @@
         android:id="@+id/profile_photo_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="104dp"
         android:text="Select your profile photo"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        android:textColor="@android:color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,130 +27,131 @@
         android:id="@+id/profile_imageView"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="44dp"
+        android:layout_marginRight="44dp"
         android:contentDescription="@string/nav_header_desc"
-        android:src="@drawable/baseline_person_outline_24px"
         android:onClick="showPictureDialog"
-        app:layout_constraintBottom_toTopOf="@+id/profile_username_edittext"
+        android:src="@drawable/baseline_person_outline_24px"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_photo_textview" />
-
-    <TextView
-        android:id="@+id/profile_username_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="52dp"
-        android:text="Enter your username"
+        app:layout_constraintHorizontal_bias="0.58"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_photo_textview" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_photo_textview"
+        app:layout_constraintVertical_bias="0.062" />
 
     <TextView
         android:id="@+id/profile_gender_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="28dp"
         android:text="Select your gender"
+        android:textColor="@android:color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username_textview" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_username_edittext_layout" />
 
-    <TextView
-        android:id="@+id/profile_birthday_textview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="84dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:text="Select your birthday"
-        app:layout_constraintEnd_toStartOf="@+id/profile_birthday_dateselect"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_gender_textview" />
-
-    <EditText
-        android:id="@+id/profile_username_edittext"
-        android:layout_width="207dp"
-        android:layout_height="45dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/profile_username_edittext_layout"
+        style="@style/UsernameLabel"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:layout_marginStart="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="44dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:maxLength="15"
-        android:singleLine="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.172"
-        app:layout_constraintStart_toEndOf="@+id/profile_username_textview"
-        app:layout_constraintTop_toBottomOf="@+id/profile_photo_textview" />
-
-    <TextView
-        android:id="@+id/profile_birthday_dateselect"
-        android:layout_width="205dp"
-        android:layout_height="44dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="312dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:gravity="center"
-        android:onClick="pickDateOnClick"
-        android:text="Pickup a date"
+        android:hint="Username"
+        android:textColorHint="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_imageView">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/profile_username_edittext"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textPersonName"
+            android:maxLength="15"
+            android:textColor="@android:color/black"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/profile_birthday_dateselect_layout"
+        style="@style/UsernameLabel"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="152dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:ems="10"
+        android:hint="Birthday"
+        android:textColorHint="@android:color/black"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_gender_textview">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/profile_birthday_dateselect"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:focusable="false"
+            android:inputType="textPersonName"
+            android:maxLength="15"
+            android:singleLine="true" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <RadioGroup
         android:id="@+id/profile_gender_radiogroup"
-        android:layout_width="99dp"
-        android:layout_height="84dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/profile_birthday_dateselect"
+        android:layout_width="wrap_content"
+        android:layout_height="100dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/profile_birthday_dateselect_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/profile_gender_textview"
-        app:layout_constraintTop_toBottomOf="@+id/profile_username_edittext">
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/profile_gender_textview"
+        app:layout_constraintVertical_bias="0.506">
 
-        <RadioButton
+        <androidx.appcompat.widget.AppCompatRadioButton
             android:id="@+id/profile_male_radiobutton"
-            android:layout_width="99dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Male" />
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:drawableRight="@drawable/icons8_man_50" />
 
-        <RadioButton
+        <androidx.appcompat.widget.AppCompatRadioButton
             android:id="@+id/profile_female_raidobutton"
-            android:layout_width="101dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Female" />
+            android:layout_gravity="center"
+            android:layout_margin="16dp"
+            android:drawableRight="@drawable/icons8_woman_50" />
     </RadioGroup>
 
     <Button
         android:id="@+id/profile_save_button"
-        android:layout_width="wrap_content"
+        android:layout_width="299dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:text="@string/save"
+        android:background="#ff9f53"
+        app:cornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.511"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_birthday_dateselect" />
+        app:layout_constraintTop_toBottomOf="@+id/profile_birthday_dateselect_layout" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

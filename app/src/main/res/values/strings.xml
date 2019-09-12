@@ -14,4 +14,6 @@
     <string name="menu_share">Share</string>
     <string name="menu_send">Send</string>
     <string name="save">Save</string>
+    <string name="username_error">Invalid username</string>
+    <string name="invalid_data">Not all information were filled</string>
 </resources>

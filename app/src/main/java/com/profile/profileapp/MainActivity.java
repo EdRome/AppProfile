@@ -5,10 +5,14 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.View;
 
 import androidx.core.view.GravityCompat;
@@ -17,7 +21,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 
 import com.bumptech.glide.Glide;
-import com.google.android.material.navigation.NavigationView;
+//import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.textfield.TextInputLayout;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -58,18 +63,22 @@ import java.util.List;
 //import java.util.HashMap;
 //import java.util.Map;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity {
+//        implements NavigationView.OnNavigationItemSelectedListener {
 
-    private TextView birthday;
+    private EditText birthday;
+    private TextInputLayout birthday_layout;
+
     private int mYear;
     private int mMonth;
     private int mDay;
 
     private CircularImageView imageview;
     private Button save;
+
     private EditText username;
-    private RadioGroup gender_group;
+    private TextInputLayout username_layout;
+
     private RadioButton male;
     private RadioButton female;
 
@@ -88,23 +97,27 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        NavigationView navigationView = findViewById(R.id.nav_view);
+//        NavigationView navigationView = findViewById(R.id.nav_view);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
+//        navigationView.setNavigationItemSelectedListener(this);
 
         birthday = findViewById(R.id.profile_birthday_dateselect);
+        birthday_layout = findViewById(R.id.profile_birthday_dateselect_layout);
         save = findViewById(R.id.profile_save_button);
         imageview = findViewById(R.id.profile_imageView);
         username = findViewById(R.id.profile_username_edittext);
+        username_layout = findViewById(R.id.profile_username_edittext_layout);
         male = findViewById(R.id.profile_male_radiobutton);
         female = findViewById(R.id.profile_female_raidobutton);
 
         profilePojo = new profilePOJO(getApplication());
 
         user = profilePojo.getProfile(1);
+
+        birthday.setInputType(InputType.TYPE_NULL);
 
 /*      To perform month translation, use this section
         monthTranslation.put(0, "Enero");
@@ -120,6 +133,57 @@ public class MainActivity extends AppCompatActivity
         monthTranslation.put(10, "Noviembre");
         monthTranslation.put(11, "Diciembre");
 */
+
+        username.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.toString().isEmpty()) {
+                    username.setError(getResources().getString(R.string.username_error));
+                    username_layout.setBoxStrokeColor(Color.RED);
+                } else if (!editable.toString().isEmpty()) {
+                    username_layout.setBoxStrokeColor(getResources().getColor(R.color.boxStroke));
+                }
+            }
+        });
+
+        birthday.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (editable.toString().isEmpty()) {
+                    birthday.setError(getResources().getString(R.string.username_error));
+                    birthday_layout.setBoxStrokeColor(Color.RED);
+                } else if (!editable.toString().isEmpty()) {
+                    birthday_layout.setBoxStrokeColor(getResources().getColor(R.color.boxStroke));
+                }
+            }
+        });
+
+        birthday.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickDateOnClick(view);
+            }
+        });
 
         if (user != null) {
             username.setText(user.getUsername());
@@ -147,7 +211,7 @@ public class MainActivity extends AppCompatActivity
                 String gender;
 
                 if (bitmap == null) {
-                    img = user.getPhoto();
+                    img = user != null ? user.getPhoto() : null;
                 } else {
                     img = convertBitmap2byte(bitmap);
                 }
@@ -158,22 +222,32 @@ public class MainActivity extends AppCompatActivity
                     gender = "male";
                 }
 
-                if (user == null) {
-                    user = new profileModel(
-                            username.getText().toString(),
-                            gender,
-                            birthdate,
-                            img);
+                if ((username.getText().toString().isEmpty() &&
+                        birthdate.toString().isEmpty() &&
+                        gender.isEmpty() &&
+                        img == null)) {
 
-                    profilePojo.insert(user);
-                } else {
-                    user.setGender(gender);
-                    user.setPhoto(img);
-                    user.setUsername(username.getText().toString());
-                    if (birthdate != null) {
-                        user.setBirthday(birthdate);
+                    if (user == null) {
+                        user = new profileModel(
+                                username.getText().toString(),
+                                gender,
+                                birthdate,
+                                img);
+
+                        profilePojo.insert(user);
+                    } else {
+                        user.setGender(gender);
+                        user.setPhoto(img);
+                        user.setUsername(username.getText().toString());
+                        if (birthdate != null) {
+                            user.setBirthday(birthdate);
+                        }
+                        profilePojo.update(user);
                     }
-                    profilePojo.update(user);
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            getResources().getString(R.string.invalid_data),
+                            Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -219,30 +293,29 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_home) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_tools) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
+//    @Override
+//    public boolean onNavigationItemSelected(MenuItem item) {
+//        // Handle navigation view item clicks here.
+//        int id = item.getItemId();
+//
+//        if (id == R.id.nav_home) {
+//            // Handle the camera action
+//        } else if (id == R.id.nav_gallery) {
+//
+//        } else if (id == R.id.nav_slideshow) {
+//
+//        } else if (id == R.id.nav_tools) {
+//
+//        } else if (id == R.id.nav_share) {
+//
+//        } else if (id == R.id.nav_send) {
+//
+//        }
+//
+//        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+//        drawer.closeDrawer(GravityCompat.START);
+//        return true;
+//    }
 
     public void pickDateOnClick(View view) {
         final Calendar c = Calendar.getInstance();
